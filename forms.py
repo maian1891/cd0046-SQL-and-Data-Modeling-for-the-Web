@@ -1,8 +1,14 @@
 from datetime import datetime
-from flask_wtf import Form
+from flask_wtf import FlaskForm as Form
 from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, IntegerField
-from wtforms.validators import DataRequired, URL, ValidationError, Regexp, AnyOf
+from wtforms.validators import DataRequired, URL, ValidationError, Regexp
 from enums import States, Genres
+
+def is_facebook_url(form, field):
+    if "facebook.com" not in field.data:
+        raise ValidationError("URL must be a Facebook link.")
+
+phone_regex = r'^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$'
 
 class ShowForm(Form):
     artist_id = StringField(
@@ -17,12 +23,6 @@ class ShowForm(Form):
         default= datetime.today()
     )
 
-def is_facebook_url(form, field):
-    if "facebook.com" not in field.data:
-        raise ValidationError("URL must be a Facebook link.")
-
-phone_regex = r'^\+?1?\d{9,15}$'
-
 class VenueForm(Form):
     name = StringField(
         'name', validators=[DataRequired()]
@@ -31,8 +31,7 @@ class VenueForm(Form):
         'city', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired(),
-            AnyOf([item.value for item in States])],
+        'state', validators=[DataRequired()],
         choices=States.items()
     )
     address = StringField(
@@ -45,7 +44,7 @@ class VenueForm(Form):
         'image_link'
     )
     genres = SelectMultipleField(
-        'genres', validators=[DataRequired(), AnyOf([item.value for item in Genres])],
+        'genres', validators=[DataRequired()],
         choices=Genres.items()
     )
     facebook_link = StringField(
@@ -69,7 +68,7 @@ class ArtistForm(Form):
         'city', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[DataRequired(), AnyOf([item.value for item in States])],
+        'state', validators=[DataRequired()],
         choices=States.items()
     )
     phone = StringField(
@@ -79,7 +78,7 @@ class ArtistForm(Form):
         'image_link'
     )
     genres = SelectMultipleField(
-        'genres', validators=[DataRequired(), AnyOf([item.value for item in Genres])],
+        'genres', validators=[DataRequired()],
         choices=Genres.items()
     )
     facebook_link = StringField(
